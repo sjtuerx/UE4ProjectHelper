@@ -90,15 +90,31 @@ namespace UE4ProjectHelper
 		/// <param name="sender">Event sender.</param>
 		/// <param name="e">Event args.</param>
 		private void MenuItemCallback(object sender, EventArgs e)
-		{
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             UE4Helper.Initialize(this.package);
 
-            if(!UE4Helper.Instance.CheckHelperRequisites())
+            if(!UE4Helper.Instance.HasAnySolutionOpened())
             {
+                string message = string.Format(CultureInfo.CurrentCulture, "You may have not opened any solution, please check!");
+				UE4Helper.Instance.ShowErrorMessage(message);
                 return;
             }
 
-            UE4Helper.Instance.UseVersionSelectorToGenerateProjectFiles();
+			if (UE4Helper.Instance.IsUEGameSolution())
+            {
+				UE4Helper.Instance.RegenerateGameSolution();
+            }
+			else if (UE4Helper.Instance.IsUEEngineSolution())
+			{ 
+				UE4Helper.Instance.RegenerateEngineSolution();
+			}
+			else
+            {
+                string message = string.Format(CultureInfo.CurrentCulture, "This solution is not a valid UE4 game solution or engine solution.");
+				UE4Helper.Instance.ShowErrorMessage(message);
+            }
 		}
 	}
 }

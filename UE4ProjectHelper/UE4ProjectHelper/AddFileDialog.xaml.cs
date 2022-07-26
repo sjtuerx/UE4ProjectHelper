@@ -52,6 +52,8 @@ namespace UE4ProjectHelper
 
         public AddFileDialog(IVsUIShell uiShell)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             this.uiShell = uiShell;
 
             InitializeComponent();
@@ -61,13 +63,15 @@ namespace UE4ProjectHelper
 
         private void DetectModules()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             var ModuleCollection = new ObservableCollection<DirectoryRecord>();
 
-            string projectRootDirectory = UE4Helper.Instance.GetProjectRootDirectory();
+            string projectRootDirectory = UE4Helper.Instance.GetGameProjectRootDirectory();
             List<string> moduleSourceDirectories = new List<string>();
 
             // Add game module
-            string projectName = UE4Helper.Instance.GetProjectName();
+            string projectName = UE4Helper.Instance.GetGameProjectName();
             string gameModuleSourceDirectory = System.IO.Path.Combine(projectRootDirectory, "Source", projectName);
             moduleSourceDirectories.Add(gameModuleSourceDirectory);
 
@@ -103,6 +107,8 @@ namespace UE4ProjectHelper
 
         private void OKButton_Click(object sender, RoutedEventArgs e)
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             DirectoryRecord item = (DirectoryRecord)directoryTreeView.SelectedItem;
             string targetDirectory = item.FullName;
 
@@ -167,7 +173,7 @@ namespace UE4ProjectHelper
 
             Close();
 
-            UE4Helper.Instance.UseVersionSelectorToGenerateProjectFiles();
+            UE4Helper.Instance.RegenerateGameSolution();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
